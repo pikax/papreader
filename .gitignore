@@ -59,7 +59,11 @@ _ReSharper*
 *.ncrunch*
 .*crunch*.local.xml
 
+<<<<<<< HEAD
 # Installshield output folder
+=======
+# Installshield output folder 
+>>>>>>> a30fc80845f763246c3e109884fd654a20a7bc50
 [Ee]xpress
 
 # DocProject is a documentation generator add-in
@@ -105,4 +109,8 @@ Generated_Code #added for RIA/Silverlight projects
 # Visual Studio version. Backup files are not needed, because we have git ;-)
 _UpgradeReport_Files/
 Backup*/
+<<<<<<< HEAD
 UpgradeLog*.XML
+=======
+UpgradeLog*.XML
+>>>>>>> a30fc80845f763246c3e109884fd654a20a7bc50
