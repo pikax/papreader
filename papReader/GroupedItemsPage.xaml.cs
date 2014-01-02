@@ -4,10 +4,13 @@ using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
+using System.Threading;
 using System.Threading.Tasks;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
+using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -27,6 +30,14 @@ namespace papReader
 	{
 		private NavigationHelper navigationHelper;
 		private ObservableDictionary defaultViewModel = new ObservableDictionary();
+
+
+		private CancellationTokenSource cts;
+		private DownloadOperation _downloadOp = null;
+		private string _number;
+
+
+		MessageDialog _dialog;
 
 		/// <summary>
 		/// NavigationHelper is used on each page to aid in navigation and 
@@ -116,12 +127,151 @@ namespace papReader
 		/// <param name="sender">The GridView (or ListView when the application is snapped)
 		/// displaying the item clicked.</param>
 		/// <param name="e">Event data that describes the item clicked.</param>
-		void ItemView_ItemClick(object sender, ItemClickEventArgs e)
+		async void ItemView_ItemClick(object sender, ItemClickEventArgs e)
 		{
+			cts = new CancellationTokenSource();
+			var itemId = ((revista)e.ClickedItem).ID;
+
+			StorageFile file = await revista.GetPDF(itemId);
+			if (file == null)
+			{
+				if (!await RequestFileDownload())
+					return;
+
+				BarProgress.Visibility = Windows.UI.Xaml.Visibility.Visible;
+				_number = itemId;
+
+				_downloadOp = await revista.GetDownloadFile(itemId);
+
+				if (_downloadOp != null)
+					await HandleDownloadAsync(_downloadOp, true);
+				
+				return;
+			}
+			await Windows.System.Launcher.LaunchFileAsync(file);
+			return;
+
 			// Navigate to the appropriate destination page, configuring the new page
 			// by passing required information as a navigation parameter
-			var itemId = ((revista)e.ClickedItem).ID;
 			this.Frame.Navigate(typeof(ItemDetailPage), itemId);
+		}
+
+
+		private async Task HandleDownloadAsync(DownloadOperation download, bool start)
+		{
+			string notifica = "";
+			try
+			{
+				
+				Progress<DownloadOperation> progressCallback = new Progress<DownloadOperation>(DownloadProgress);
+				if (start)
+				{
+					// Start the download and attach a progress handler.
+					await download.StartAsync().AsTask(cts.Token, progressCallback);
+				}
+				else
+				{
+					// The download was already running when the application started, re-attach the progress handler.
+					await download.AttachAsync().AsTask(cts.Token, progressCallback);
+				}
+
+				ResponseInformation response = download.GetResponseInformation();
+
+				//LogStatus(String.Format(CultureInfo.CurrentCulture, "Completed: {0}, Status Code: {1}",
+				//	download.Guid, response.StatusCode), NotifyType.StatusMessage);
+			}
+			catch (TaskCanceledException)
+			{
+				notifica = "Download Cancelado, tente novamente mais tarde";
+				//LogStatus("Canceled: " + download.Guid, NotifyType.StatusMessage);
+			}
+			catch (Exception ex)
+			{
+				notifica = "Download Cancelado, tente novamente mais tarde";
+
+
+
+				//if (!IsExceptionHandled("Execution error", ex, download))
+				//{
+				//	throw;
+				//}
+			}
+			finally
+			{
+				_downloadOp = null;
+				BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+
+			}
+			if (!string.IsNullOrEmpty(notifica))
+			{
+				await MessageBox(notifica);
+				return;
+			}
+
+			await Windows.System.Launcher.LaunchFileAsync(await revista.GetPDF(_number));
+			//await SetPDF(await revista.GetPDF(_number));
+		}
+
+		private void DownloadProgress(DownloadOperation download)
+		{
+			//MarshalLog(String.Format(CultureInfo.CurrentCulture, "Progress: {0}, Status: {1}", download.Guid,
+			//   download.Progress.Status));
+
+			double percent = 100;
+			if (download.Progress.TotalBytesToReceive > 0)
+			{
+				percent = download.Progress.BytesReceived * 100 / download.Progress.TotalBytesToReceive;
+			}
+
+			BarProgress.Value = percent;
+			//_dialog.Content = string.Format("{0:0}%", percent);
+			
+			//MarshalLog(String.Format(CultureInfo.CurrentCulture, " - Transfered bytes: {0} of {1}, {2}%",
+			//	download.Progress.BytesReceived, download.Progress.TotalBytesToReceive, percent));
+
+			//if (download.Progress.HasRestarted)
+			//{
+			//	MarshalLog(" - Download restarted");
+			//}
+
+			//if (download.Progress.HasResponseChanged)
+			//{
+			//	// We've received new response headers from the server.
+			//	MarshalLog(" - Response updated; Header count: " + download.GetResponseInformation().Headers.Count);
+
+			//	// If you want to stream the response data this is a good time to start.
+			//	// download.GetResultStreamAt(0);
+			//}
+		}
+
+		private async Task MessageBox(string message)
+		{
+			var messageDialog = new MessageDialog(message, "Notificação");
+			messageDialog.Commands.Add(new UICommand("OK", (command) => { }));
+			await messageDialog.ShowAsync();
+		}
+
+		private async Task<bool> RequestFileDownload()
+		{
+			// Create the message dialog and set its content and title
+			var messageDialog = new MessageDialog("Ficheiro não encontrado, deseja fazer download?", "Uppsss");
+
+			var yesCommand = new UICommand("Sim", (command) =>
+			{
+			});
+			// Add commands and set their callbacks
+			messageDialog.Commands.Add(yesCommand);
+
+			messageDialog.Commands.Add(new UICommand("Não", (command) =>
+			{
+				//rootPage.NotifyUser("The 'Install updates' command has been selected.", NotifyType.StatusMessage);
+			}));
+
+			// Set the command that will be invoked by default
+			messageDialog.DefaultCommandIndex = 1;
+
+			// Show the message dialog
+			return (await messageDialog.ShowAsync()) == yesCommand;
 		}
 
 		#region NavigationHelper registration

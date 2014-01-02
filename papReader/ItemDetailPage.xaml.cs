@@ -182,6 +182,7 @@ namespace papReader
 
 		private async Task SetPDF(StorageFile file)
 		{
+			
 			var _pdfDocument = await PdfDocument.LoadFromFileAsync(file); ;
 
 			if (_pdfDocument != null && _pdfDocument.PageCount > 0)
