@@ -42,6 +42,7 @@ namespace papReader.DataModel
 
 		public static async Task<List<revista>> GetRevistas()
 		{
+			const string IMAGEHD = @"http://www.portugal-a-programar.pt/revista-programar/images/ed{0}.{1}";
 			const string GETOPERATION = "?action=editions";
 			const string REGEX = @"(?:<a href="")(?<url>[^""]*)(?:""><img border=""0"" style=""padding: 10px; margin: 10px;"" alt="")(?<nome>[^""]*)(?:"" src="")(?<img>[^""]*)";
 
@@ -52,17 +53,18 @@ namespace papReader.DataModel
 			foreach (Match item in Regex.Matches(str, REGEX, RegexOptions.Multiline))
 			{
 				var grp = item.Groups;
-				list.Add(new revista()
+				var rev = new revista()
 							{
 								Url = grp["url"].Value
 								,
-								ImgUrl = grp["img"].Value
-								,
+								//ImgUrl = grp["img"].Value //mudar para uma imagem com melhor qualidade
+								//,
 								Name = grp["nome"].Value
 								,
 								ID = grp["url"].Value.Split('=').LastOrDefault()//um pouco errado, mas funciona :)
-							}
-					);
+							};
+				rev.ImgUrl = string.Format(IMAGEHD, rev.ID, grp["img"].Value.Split('.').LastOrDefault()); //outra vez, nao muito correcto mas funciona
+				list.Add(rev);
 			}
 			return list;
 		}
