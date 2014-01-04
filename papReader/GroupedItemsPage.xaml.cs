@@ -1,22 +1,13 @@
 ﻿using papReader.Common;
-using papReader.DataModel;
+using papReader.Helper;
+using PaPReaderLib;
 using System;
-using System.Collections.Generic;
-using System.IO;
-using System.Linq;
-using System.Threading;
 using System.Threading.Tasks;
-using Windows.Foundation;
-using Windows.Foundation.Collections;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
-using Windows.UI.Xaml.Controls.Primitives;
-using Windows.UI.Xaml.Data;
-using Windows.UI.Xaml.Input;
-using Windows.UI.Xaml.Media;
 using Windows.UI.Xaml.Navigation;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
@@ -28,19 +19,18 @@ namespace papReader
 	/// </summary>
 	public sealed partial class GroupedItemsPage : Page
 	{
-		private NavigationHelper navigationHelper;
-		private ObservableDictionary defaultViewModel = new ObservableDictionary();
-
-
-		private CancellationTokenSource cts;
-		private DownloadOperation _downloadOp = null;
 		private string _number;
+		private NavigationHelper navigationHelper;
 
-
-		MessageDialog _dialog;
+		public GroupedItemsPage()
+		{
+			this.InitializeComponent();
+			this.navigationHelper = new NavigationHelper(this);
+			this.navigationHelper.LoadState += navigationHelper_LoadState;
+		}
 
 		/// <summary>
-		/// NavigationHelper is used on each page to aid in navigation and 
+		/// NavigationHelper is used on each page to aid in navigation and
 		/// process lifetime management
 		/// </summary>
 		public NavigationHelper NavigationHelper
@@ -48,19 +38,92 @@ namespace papReader
 			get { return this.navigationHelper; }
 		}
 
-		/// <summary>
-		/// This can be changed to a strongly typed view model.
-		/// </summary>
-		public ObservableDictionary DefaultViewModel
+		private void DownloadProgress(DownloadOperation download)
 		{
-			get { return this.defaultViewModel; }
+			//MarshalLog(String.Format(CultureInfo.CurrentCulture, "Progress: {0}, Status: {1}", download.Guid,
+			//   download.Progress.Status));
+
+			double percent = 100;
+			if (download.Progress.TotalBytesToReceive > 0)
+			{
+				percent = download.Progress.BytesReceived * 100 / download.Progress.TotalBytesToReceive;
+			}
+
+			BarProgress.Value = percent;
+			//_dialog.Content = string.Format("{0:0}%", percent);
+
+			//MarshalLog(String.Format(CultureInfo.CurrentCulture, " - Transfered bytes: {0} of {1}, {2}%",
+			//	download.Progress.BytesReceived, download.Progress.TotalBytesToReceive, percent));
+
+			//if (download.Progress.HasRestarted)
+			//{
+			//	MarshalLog(" - Download restarted");
+			//}
+
+			//if (download.Progress.HasResponseChanged)
+			//{
+			//	// We've received new response headers from the server.
+			//	MarshalLog(" - Response updated; Header count: " + download.GetResponseInformation().Headers.Count);
+
+			//	// If you want to stream the response data this is a good time to start.
+			//	// download.GetResultStreamAt(0);
+			//}
 		}
 
-		public GroupedItemsPage()
+		/// <summary>
+		/// Invoked when a group header is clicked.
+		/// </summary>
+		/// <param name="sender">The Button used as a group header for the selected group.</param>
+		/// <param name="e">Event data that describes how the click was initiated.</param>
+		private void Header_Click(object sender, RoutedEventArgs e)
 		{
-			this.InitializeComponent();
-			this.navigationHelper = new NavigationHelper(this);
-			this.navigationHelper.LoadState += navigationHelper_LoadState;
+			//// Determine what group the Button instance represents
+			//var group = (sender as FrameworkElement).DataContext;
+
+			//// Navigate to the appropriate destination page, configuring the new page
+			//// by passing required information as a navigation parameter
+			//this.Frame.Navigate(typeof(GroupDetailPage), ((SampleDataGroup)group).UniqueId);
+		}
+
+		/// <summary>
+		/// Invoked when an item within a group is clicked.
+		/// </summary>
+		/// <param name="sender">The GridView (or ListView when the application is snapped)
+		/// displaying the item clicked.</param>
+		/// <param name="e">Event data that describes the item clicked.</param>
+		private async void ItemView_ItemClick(object sender, ItemClickEventArgs e)
+		{
+			var rev = ((Revista)e.ClickedItem);
+			var file = await RevistaControllerWrapper.Instance.GetPDF(rev);
+			if (file == null)
+			{
+				if (!await RequestFileDownload())
+					return;
+				try
+				{
+					BarProgress.Visibility = Windows.UI.Xaml.Visibility.Visible;
+
+					await DownloadHelper.Download(rev, ExecFile, ShowError, (x) => { BarProgress.Value = x; if (x == 100)BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed; });
+					return;
+				}
+				finally
+				{
+					BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+				}
+			}
+			await ExecFile(file);
+		}
+
+		async Task ExecFile(IStorageFile file)
+		{
+			await Windows.System.Launcher.LaunchFileAsync(file);
+		}
+
+		private async Task MessageBox(string message)
+		{
+			var messageDialog = new MessageDialog(message, "Notificação");
+			messageDialog.Commands.Add(new UICommand("OK", (command) => { }));
+			await messageDialog.ShowAsync();
 		}
 
 		/// <summary>
@@ -80,175 +143,10 @@ namespace papReader
 			//var sampleDataGroups = await SampleDataSource.GetGroupsAsync();
 			//this.DefaultViewModel["Groups"] = sampleDataGroups;
 
-			try
-			{
-				itemGridView.ItemsSource = await revista.GetRevistas();
-				return;
-			}
-			catch
-			{
-			}
-			itemGridView.ItemsSource = await FillFromCache();
-		}
-
-		private async Task<List<revista>> FillFromCache()
-		{
-			var dir = ApplicationData.Current.LocalFolder;
-
-			var list = new List<revista>();
-
-			var files = await dir.GetFilesAsync();
-			foreach (var item in files)
-			{
-				var xx = item.Name.Replace(".pdf", "");
-				list.Add(new revista() { ID = xx, Name = xx });
-			}
-			return list;
-		}
-
-		/// <summary>
-		/// Invoked when a group header is clicked.
-		/// </summary>
-		/// <param name="sender">The Button used as a group header for the selected group.</param>
-		/// <param name="e">Event data that describes how the click was initiated.</param>
-		void Header_Click(object sender, RoutedEventArgs e)
-		{
-			//// Determine what group the Button instance represents
-			//var group = (sender as FrameworkElement).DataContext;
-
-			//// Navigate to the appropriate destination page, configuring the new page
-			//// by passing required information as a navigation parameter
-			//this.Frame.Navigate(typeof(GroupDetailPage), ((SampleDataGroup)group).UniqueId);
-		}
-
-		/// <summary>
-		/// Invoked when an item within a group is clicked.
-		/// </summary>
-		/// <param name="sender">The GridView (or ListView when the application is snapped)
-		/// displaying the item clicked.</param>
-		/// <param name="e">Event data that describes the item clicked.</param>
-		async void ItemView_ItemClick(object sender, ItemClickEventArgs e)
-		{
-			cts = new CancellationTokenSource();
-			var itemId = ((revista)e.ClickedItem).ID;
-
-			StorageFile file = await revista.GetPDF(itemId);
-			if (file == null)
-			{
-				if (!await RequestFileDownload())
-					return;
-
-				BarProgress.Visibility = Windows.UI.Xaml.Visibility.Visible;
-				_number = itemId;
-
-				_downloadOp = await revista.GetDownloadFile(itemId);
-
-				if (_downloadOp != null)
-					await HandleDownloadAsync(_downloadOp, true);
-				
-				return;
-			}
-			await Windows.System.Launcher.LaunchFileAsync(file);
-			return;
-
-			// Navigate to the appropriate destination page, configuring the new page
-			// by passing required information as a navigation parameter
-			this.Frame.Navigate(typeof(ItemDetailPage), itemId);
-		}
-
-
-		private async Task HandleDownloadAsync(DownloadOperation download, bool start)
-		{
-			string notifica = "";
-			try
-			{
-				
-				Progress<DownloadOperation> progressCallback = new Progress<DownloadOperation>(DownloadProgress);
-				if (start)
-				{
-					// Start the download and attach a progress handler.
-					await download.StartAsync().AsTask(cts.Token, progressCallback);
-				}
-				else
-				{
-					// The download was already running when the application started, re-attach the progress handler.
-					await download.AttachAsync().AsTask(cts.Token, progressCallback);
-				}
-
-				ResponseInformation response = download.GetResponseInformation();
-
-				//LogStatus(String.Format(CultureInfo.CurrentCulture, "Completed: {0}, Status Code: {1}",
-				//	download.Guid, response.StatusCode), NotifyType.StatusMessage);
-			}
-			catch (TaskCanceledException)
-			{
-				notifica = "Download Cancelado, tente novamente mais tarde";
-				//LogStatus("Canceled: " + download.Guid, NotifyType.StatusMessage);
-			}
-			catch (Exception ex)
-			{
-				notifica = "Download Cancelado, tente novamente mais tarde";
-
-
-
-				//if (!IsExceptionHandled("Execution error", ex, download))
-				//{
-				//	throw;
-				//}
-			}
-			finally
-			{
-				_downloadOp = null;
-				BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
-
-			}
-			if (!string.IsNullOrEmpty(notifica))
-			{
-				await MessageBox(notifica);
-				return;
-			}
-
-			await Windows.System.Launcher.LaunchFileAsync(await revista.GetPDF(_number));
-			//await SetPDF(await revista.GetPDF(_number));
-		}
-
-		private void DownloadProgress(DownloadOperation download)
-		{
-			//MarshalLog(String.Format(CultureInfo.CurrentCulture, "Progress: {0}, Status: {1}", download.Guid,
-			//   download.Progress.Status));
-
-			double percent = 100;
-			if (download.Progress.TotalBytesToReceive > 0)
-			{
-				percent = download.Progress.BytesReceived * 100 / download.Progress.TotalBytesToReceive;
-			}
-
-			BarProgress.Value = percent;
-			//_dialog.Content = string.Format("{0:0}%", percent);
-			
-			//MarshalLog(String.Format(CultureInfo.CurrentCulture, " - Transfered bytes: {0} of {1}, {2}%",
-			//	download.Progress.BytesReceived, download.Progress.TotalBytesToReceive, percent));
-
-			//if (download.Progress.HasRestarted)
-			//{
-			//	MarshalLog(" - Download restarted");
-			//}
-
-			//if (download.Progress.HasResponseChanged)
-			//{
-			//	// We've received new response headers from the server.
-			//	MarshalLog(" - Response updated; Header count: " + download.GetResponseInformation().Headers.Count);
-
-			//	// If you want to stream the response data this is a good time to start.
-			//	// download.GetResultStreamAt(0);
-			//}
-		}
-
-		private async Task MessageBox(string message)
-		{
-			var messageDialog = new MessageDialog(message, "Notificação");
-			messageDialog.Commands.Add(new UICommand("OK", (command) => { }));
-			await messageDialog.ShowAsync();
+			if(!await RevistaControllerWrapper.Instance.Refresh())
+				await RevistaControllerWrapper.Instance.Load();
+			_grd.DataContext = RevistaControllerWrapper.Instance;
+			//itemGridView.ItemsSource = RevistaControllerWrapper.Instance.;
 		}
 
 		private async Task<bool> RequestFileDownload()
@@ -274,27 +172,33 @@ namespace papReader
 			return (await messageDialog.ShowAsync()) == yesCommand;
 		}
 
+		private async void ShowError(string x)
+		{
+			await MessageBox(x);
+			BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+		}
+
 		#region NavigationHelper registration
 
 		/// The methods provided in this section are simply used to allow
 		/// NavigationHelper to respond to the page's navigation methods.
-		/// 
-		/// Page specific logic should be placed in event handlers for the  
+		///
+		/// Page specific logic should be placed in event handlers for the
 		/// <see cref="GridCS.Common.NavigationHelper.LoadState"/>
 		/// and <see cref="GridCS.Common.NavigationHelper.SaveState"/>.
-		/// The navigation parameter is available in the LoadState method 
+		/// The navigation parameter is available in the LoadState method
 		/// in addition to page state preserved during an earlier session.
-
-		protected override void OnNavigatedTo(NavigationEventArgs e)
-		{
-			navigationHelper.OnNavigatedTo(e);
-		}
 
 		protected override void OnNavigatedFrom(NavigationEventArgs e)
 		{
 			navigationHelper.OnNavigatedFrom(e);
 		}
 
-		#endregion
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			navigationHelper.OnNavigatedTo(e);
+		}
+
+		#endregion NavigationHelper registration
 	}
 }

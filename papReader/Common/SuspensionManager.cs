@@ -1,4 +1,5 @@
-﻿using System;
+﻿using papReader.Helper;
+using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -69,6 +70,8 @@ namespace papReader.Common
                     }
                 }
 
+				await RevistaControllerWrapper.Instance.Save();
+
                 // Serialize the session state synchronously to avoid asynchronous access to shared
                 // state
                 MemoryStream sessionData = new MemoryStream();
@@ -112,6 +115,8 @@ namespace papReader.Common
                     DataContractSerializer serializer = new DataContractSerializer(typeof(Dictionary<string, object>), _knownTypes);
                     _sessionState = (Dictionary<string, object>)serializer.ReadObject(inStream.AsStreamForRead());
                 }
+
+				await RevistaControllerWrapper.Instance.Load();
 
                 // Restore any registered frames to their saved state
                 foreach (var weakFrameReference in _registeredFrames)
