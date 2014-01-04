@@ -5,6 +5,8 @@ VisualStudioVersion = 12.0.21005.1
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "papReader", "papReader.csproj", "{CCDDA3DB-9F87-4439-9E8A-D7D4A3C159F2}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "PaPReaderLib", "..\PaPReaderLib\PaPReaderLib.csproj", "{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -41,6 +43,16 @@ Global
 		{CCDDA3DB-9F87-4439-9E8A-D7D4A3C159F2}.Release|x86.ActiveCfg = Release|x86
 		{CCDDA3DB-9F87-4439-9E8A-D7D4A3C159F2}.Release|x86.Build.0 = Release|x86
 		{CCDDA3DB-9F87-4439-9E8A-D7D4A3C159F2}.Release|x86.Deploy.0 = Release|x86
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Debug|ARM.ActiveCfg = Debug|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Debug|x64.ActiveCfg = Debug|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Debug|x86.ActiveCfg = Debug|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Release|ARM.ActiveCfg = Release|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Release|x64.ActiveCfg = Release|Any CPU
+		{B601B2DF-06D7-447A-A6E4-B12BADBDD79E}.Release|x86.ActiveCfg = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

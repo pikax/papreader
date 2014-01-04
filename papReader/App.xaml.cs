@@ -1,5 +1,4 @@
 ﻿using papReader.Common;
-
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -9,6 +8,7 @@ using Windows.ApplicationModel;
 using Windows.ApplicationModel.Activation;
 using Windows.Foundation;
 using Windows.Foundation.Collections;
+using Windows.Networking.Connectivity;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Controls.Primitives;
@@ -26,6 +26,7 @@ namespace papReader
     /// </summary>
     sealed partial class App : Application
     {
+
         /// <summary>
         /// Initializes the singleton Application object.  This is the first line of authored code
         /// executed, and as such is the logical equivalent of main() or WinMain().
@@ -53,8 +54,7 @@ namespace papReader
             }
 #endif
 
-			//System.Globalization.CultureInfo.DefaultThreadCurrentCulture = new System.Globalization.CultureInfo("pt-PT");
-
+			
 
             Frame rootFrame = Window.Current.Content as Frame;
 
