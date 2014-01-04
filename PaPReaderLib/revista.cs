@@ -1,11 +1,11 @@
-﻿using System.Runtime.Serialization;
+﻿using System;
+using System.Runtime.Serialization;
 namespace PaPReaderLib
 {
-	[KnownType(typeof(Revista))]
 	public class Revista
 	{
 		public string ID {  get; set; }
-		public string ImgUrl { get; set; }
+		public Uri ImgUrl { get; set; }
 		public string Name { get; set; }
 		public string Url { get; set; }
 	}
