@@ -83,7 +83,7 @@
             AutomationProperties.Name="Grouped Items"
             Grid.RowSpan="2"
             Padding="116,137,40,46"
-            SelectionMode="None"
+            SelectionMode="Multiple"
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"
 			ItemsSource="{Binding Lista}"
@@ -107,8 +107,9 @@
                         AutomationProperties.Name="Back"
                         AutomationProperties.AutomationId="BackButton"
                         AutomationProperties.ItemType="Navigation Button"/>
-			<TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
-                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>
+			<Image Height="80" Source="Assets/Wide310x150Logo.scale-80.png" Grid.Column="1" IsHitTestVisible="false" HorizontalAlignment="Left"/>
+			<!--<TextBlock x:Name="pageTitle" Text="{StaticResource AppName}" Style="{StaticResource HeaderTextBlockStyle}" Grid.Column="1" 
+                        IsHitTestVisible="false" TextWrapping="NoWrap" VerticalAlignment="Bottom" Margin="0,0,30,40"/>-->
 		</Grid>
 	</Grid>
 </Page>
