@@ -114,6 +114,7 @@ namespace papReader.Helper
 			}
 			else
 			{
+				await download.ResultFile.DeleteAsync();
 				callBack(notifica);
 			}
 		}
