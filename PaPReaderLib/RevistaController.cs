@@ -84,7 +84,7 @@ namespace PaPReaderLib
 					,
 					ID = grp["url"].Value.Split('=').LastOrDefault()//um pouco errado, mas funciona :)
 				};
-				rev.ImgUrl = string.Format(IMAGEHD, rev.ID, grp["img"].Value.Split('.').LastOrDefault()); //outra vez, nao muito correcto mas funciona
+				rev.ImgUrl = new Uri(string.Format(IMAGEHD, rev.ID, grp["img"].Value.Split('.').LastOrDefault())); //outra vez, nao muito correcto mas funciona
 				list.Add(rev);
 			}
 			if (list.Count > 0)

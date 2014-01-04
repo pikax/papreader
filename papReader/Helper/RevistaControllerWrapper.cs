@@ -1,5 +1,6 @@
 ﻿using PaPReaderLib;
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
@@ -14,9 +15,12 @@ namespace papReader.Helper
 	{
 		public static readonly RevistaControllerWrapper Instance = new RevistaControllerWrapper();
 
+		public static readonly List<string> ListaFicheiros = new List<string>();
+
 		private const string LISTAFILENAME = "listRevista.json";
 
 		private const string PATH = "Revistas";
+		private const string PATHIMAGENS = "Capas";
 
 		private RevistaControllerWrapper()
 		{
@@ -59,8 +63,28 @@ namespace papReader.Helper
 
 		public async Task<bool> Refresh()
 		{
-			return RevistaController.Instance.RefreshLista(
-				await LibHelper.GetHttpPageAsyncHelper(RevistaController.RevistaUrl));
+			if (!RevistaController.Instance.RefreshLista(
+				await LibHelper.GetHttpPageAsyncHelper(RevistaController.RevistaUrl)))
+				return false;
+
+			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(PATHIMAGENS, CreationCollisionOption.OpenIfExists);
+			if (folder == null)
+				return false;
+			using (var http = new System.Net.Http.HttpClient())
+			{
+				var ll = await folder.GetFilesAsync();
+				foreach (var item in Lista.Where(x => ll.FirstOrDefault(y => y.Name.Equals(Path.GetFileName(x.ImgUrl.AbsolutePath))) == null))
+				{
+					var file = await folder.CreateFileAsync(Path.GetFileName(item.ImgUrl.AbsolutePath), CreationCollisionOption.ReplaceExisting);
+
+					using (var str = await http.GetStreamAsync(item.ImgUrl))
+					{
+						str.CopyTo(await file.OpenStreamForWriteAsync());
+					}
+					item.ImgUrl = new Uri(file.Path);
+				}
+			}
+			return true;
 		}
 
 		public async Task<bool> Save()

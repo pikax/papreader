@@ -19,13 +19,42 @@
             Collection of grouped items displayed by this page, bound to a subset
             of the complete item list because items in groups cannot be virtualized
         -->
-		
+
 		<CollectionViewSource
             x:Name="groupedItemsViewSource"
             IsSourceGrouped="true"
             ItemsPath="Items"/>
+
+		<DataTemplate x:Key="TemplateNormal">
+			<Grid HorizontalAlignment="Left" Width="247" Height="349">
+				<Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+					<Image Source="{Binding ImgUrl}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+				</Border>
+				<StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+					<TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0"/>
+				</StackPanel>
+			</Grid>
+		</DataTemplate>
+		<DataTemplate x:Key="TemplateDownloaded">
+			<Grid HorizontalAlignment="Left" Width="247" Height="349">
+				<Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
+					<Image Source="{Binding ImgUrl}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
+				</Border>
+				<Border VerticalAlignment="Top" HorizontalAlignment="Right"
+							CornerRadius="30"
+							Width="30"
+							Height="30"
+							Margin="10"
+							Background="Red">
+					<TextBlock HorizontalAlignment="Center" VerticalAlignment="Center" Text="&#xE118;" FontFamily="Segoe UI Symbol" />
+				</Border>
+				<StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
+					<TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0"/>
+				</StackPanel>
+			</Grid>
+		</DataTemplate>
 	</Page.Resources>
-	
+
 	<!--
         This grid acts as a root panel for the page that defines two rows:
         * Row 0 contains the back button and page title
@@ -59,19 +88,6 @@
             IsItemClickEnabled="True"
 			ItemsSource="{Binding Lista}"
             ItemClick="ItemView_ItemClick">
-			<GridView.ItemTemplate>
-				<DataTemplate>
-					<Grid HorizontalAlignment="Left" Width="247" Height="349">
-						<Border Background="{ThemeResource ListViewItemPlaceholderBackgroundThemeBrush}">
-							<Image Source="{Binding ImgUrl}" Stretch="UniformToFill" AutomationProperties.Name="{Binding Title}"/>
-						</Border>
-						<StackPanel VerticalAlignment="Bottom" Background="{ThemeResource ListViewItemOverlayBackgroundThemeBrush}">
-							<TextBlock Text="{Binding Name}" Foreground="{ThemeResource ListViewItemOverlayForegroundThemeBrush}" Style="{StaticResource TitleTextBlockStyle}" Height="60" Margin="15,0,15,0"/>
-							<!--TextBlock Text="{Binding Url}" Foreground="{ThemeResource ListViewItemOverlaySecondaryForegroundThemeBrush}" Style="{StaticResource CaptionTextBlockStyle}" TextWrapping="NoWrap" Margin="15,0,15,10"/-->
-						</StackPanel>
-					</Grid>
-				</DataTemplate>
-			</GridView.ItemTemplate>
 			<GridView.ItemsPanel>
 				<ItemsPanelTemplate>
 					<ItemsWrapGrid GroupPadding="0,0,70,0"/>

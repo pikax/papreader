@@ -19,7 +19,7 @@ namespace papReader
 	/// </summary>
 	public sealed partial class GroupedItemsPage : Page
 	{
-		private string _number;
+		public static GroupedItemsPage CurrentPage;
 		private NavigationHelper navigationHelper;
 
 		public GroupedItemsPage()
@@ -27,6 +27,8 @@ namespace papReader
 			this.InitializeComponent();
 			this.navigationHelper = new NavigationHelper(this);
 			this.navigationHelper.LoadState += navigationHelper_LoadState;
+			this.itemGridView.ItemTemplateSelector = new RevistaDataTemplateSelector();
+			CurrentPage = this;
 		}
 
 		/// <summary>
@@ -36,38 +38,6 @@ namespace papReader
 		public NavigationHelper NavigationHelper
 		{
 			get { return this.navigationHelper; }
-		}
-
-		private void DownloadProgress(DownloadOperation download)
-		{
-			//MarshalLog(String.Format(CultureInfo.CurrentCulture, "Progress: {0}, Status: {1}", download.Guid,
-			//   download.Progress.Status));
-
-			double percent = 100;
-			if (download.Progress.TotalBytesToReceive > 0)
-			{
-				percent = download.Progress.BytesReceived * 100 / download.Progress.TotalBytesToReceive;
-			}
-
-			BarProgress.Value = percent;
-			//_dialog.Content = string.Format("{0:0}%", percent);
-
-			//MarshalLog(String.Format(CultureInfo.CurrentCulture, " - Transfered bytes: {0} of {1}, {2}%",
-			//	download.Progress.BytesReceived, download.Progress.TotalBytesToReceive, percent));
-
-			//if (download.Progress.HasRestarted)
-			//{
-			//	MarshalLog(" - Download restarted");
-			//}
-
-			//if (download.Progress.HasResponseChanged)
-			//{
-			//	// We've received new response headers from the server.
-			//	MarshalLog(" - Response updated; Header count: " + download.GetResponseInformation().Headers.Count);
-
-			//	// If you want to stream the response data this is a good time to start.
-			//	// download.GetResultStreamAt(0);
-			//}
 		}
 
 		/// <summary>
@@ -116,6 +86,8 @@ namespace papReader
 
 		async Task ExecFile(IStorageFile file)
 		{
+			if (!RevistaControllerWrapper.ListaFicheiros.Contains(file.Name))
+				RevistaControllerWrapper.ListaFicheiros.Add(file.Name);
 			await Windows.System.Launcher.LaunchFileAsync(file);
 		}
 
@@ -143,7 +115,7 @@ namespace papReader
 			//var sampleDataGroups = await SampleDataSource.GetGroupsAsync();
 			//this.DefaultViewModel["Groups"] = sampleDataGroups;
 
-			if(!await RevistaControllerWrapper.Instance.Refresh())
+			if (!await RevistaControllerWrapper.Instance.Refresh())
 				await RevistaControllerWrapper.Instance.Load();
 			_grd.DataContext = RevistaControllerWrapper.Instance;
 			//itemGridView.ItemsSource = RevistaControllerWrapper.Instance.;
