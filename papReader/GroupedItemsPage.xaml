@@ -87,7 +87,7 @@
             IsSwipeEnabled="false"
             IsItemClickEnabled="True"
 			ItemsSource="{Binding Lista}"
-            ItemClick="ItemView_ItemClick">
+            ItemClick="ItemView_ItemClick" Margin="10,-10,-10,10">
 			<GridView.ItemsPanel>
 				<ItemsPanelTemplate>
 					<ItemsWrapGrid GroupPadding="0,0,70,0"/>
