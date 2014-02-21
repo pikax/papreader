@@ -1,4 +1,5 @@
 ﻿using PaPReaderLib;
+using PaPReaderLib.Model;
 using System;
 using System.Threading;
 using System.Threading.Tasks;
@@ -7,7 +8,7 @@ using Windows.Networking.Connectivity;
 using Windows.Storage;
 using Windows.UI.Popups;
 
-namespace papReader.Helper
+namespace RevProgramarWin8.Helper
 {
 	public class DownloadHelper : IDisposable
 	{
@@ -38,6 +39,34 @@ namespace papReader.Helper
 				try
 				{
 					var d = bg.CreateDownload(RevistaController.Instance.GetDownloadFile(rev), file);
+
+					await down.HandleDownloadAsync(d, true, onSucess, callBack, progressHandler);
+				}
+				catch
+				{
+					return false;
+				}
+				return true;
+			}
+		}
+
+		public static async Task<bool> Download(Edicao edicao, Func<IStorageFile, Task> onSucess, Action<string> callBack, Action<double> progressHandler)
+		{
+			if (!HaveInternetConnection())
+			{
+				callBack("Sem conexão à Internet");
+				return false;
+			}
+
+			BackgroundDownloader bg = new BackgroundDownloader();
+			var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(RevistaControllerWrapper.FolderName, CreationCollisionOption.OpenIfExists);
+			var file = await folder.CreateFileAsync(RevistaControllerWrapper.GetPdfName(edicao), CreationCollisionOption.ReplaceExisting);
+
+			using (DownloadHelper down = new DownloadHelper())
+			{
+				try
+				{
+					var d = bg.CreateDownload(RevistaController.Instance.GetDownloadFile(edicao), file);
 
 					await down.HandleDownloadAsync(d, true, onSucess, callBack, progressHandler);
 				}

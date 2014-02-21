@@ -44,6 +44,10 @@ ipch/
 *.opensdf
 *.sdf
 
+#Visual Studio Store
+*.pfx
+*.StoreAssociation.xml	
+	
 # Visual Studio profiler
 *.psess
 *.vsp
@@ -114,3 +118,5 @@ UpgradeLog*.XML
 =======
 UpgradeLog*.XML
 >>>>>>> a30fc80845f763246c3e109884fd654a20a7bc50
+/Revista Programar Reader Win8/*.pfx
+/papReader/*.pfx

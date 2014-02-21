@@ -1,5 +1,6 @@
-﻿using papReader.Common;
-using papReader.Helper;
+﻿using RevProgramarWin8;
+using RevProgramarWin8.Common;
+using RevProgramarWin8.Helper;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -21,7 +22,7 @@ using Windows.UI.Xaml.Navigation;
 
 // The Grid App template is documented at http://go.microsoft.com/fwlink/?LinkId=234226
 
-namespace papReader
+namespace RevProgramarWin8
 {
 	/// <summary>
 	/// Provides application-specific behavior to supplement the default Application class.
