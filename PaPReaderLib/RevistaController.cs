@@ -1,10 +1,14 @@
-﻿using System;
+﻿using PaPReaderLib.Model;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.IO;
 using System.Linq;
+using System.Net;
 using System.Runtime.Serialization.Json;
+using System.Text;
 using System.Text.RegularExpressions;
+using System.Threading;
 
 namespace PaPReaderLib
 {
@@ -14,13 +18,17 @@ namespace PaPReaderLib
 		private const string SITE = "http://revista-programar.info/";
 		private Uri _GetRevistaURL = new Uri(string.Format("{0}{1}", SITE, "?action=editions"), UriKind.Absolute);
 		private List<Revista> _lista;
-		private Uri _site = new Uri("http://revista-programar.info/", UriKind.Absolute);
+		private Uri _site = new Uri(SITE, UriKind.Absolute);
 
-		private RevistaController() { }
+
+		private RevistaController()
+		{
+		}
 
 		public event PropertyChangedEventHandler PropertyChanged;
 
 		public static Uri PaPSite { get { return Instance._site; } }
+
 		public static Uri RevistaUrl { get { return Instance._GetRevistaURL; } }
 
 		public List<Revista> Lista
@@ -48,6 +56,7 @@ namespace PaPReaderLib
 			x.WriteObject(str, Lista);
 			return str.CanRead;
 		}
+
 		public bool SaveToStream(Stream str)
 		{
 			DataContractJsonSerializer x = new DataContractJsonSerializer(typeof(List<Revista>));
@@ -59,6 +68,11 @@ namespace PaPReaderLib
 		{
 			const string FRM = @"http://www.portugal-a-programar.pt/revista-programar/edicoes/download.php?t=site&e={0}";
 			return new Uri(string.Format(FRM, rev.ID), UriKind.Absolute);
+		}
+
+		public Uri GetDownloadFile(Edicao edi)
+		{
+			return new Uri(edi.pdf);
 		}
 
 		public bool RefreshLista(string pagHtml)
@@ -92,5 +106,7 @@ namespace PaPReaderLib
 
 			return list.Count > 0;
 		}
+
+		
 	}
 }

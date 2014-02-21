@@ -86,7 +86,7 @@ namespace papReader
 					}
 				}
 
-				var folder = await ApplicationData.Current.LocalFolder.GetFolderAsync(RevistaControllerWrapper.FolderName);
+				var folder = await ApplicationData.Current.LocalFolder.CreateFolderAsync(RevistaControllerWrapper.FolderName, CreationCollisionOption.OpenIfExists);
 				if (folder != null)
 				{
 					RevistaControllerWrapper.ListaFicheiros.Clear();

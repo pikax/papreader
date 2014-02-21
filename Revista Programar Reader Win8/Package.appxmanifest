@@ -1,38 +1,25 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-
-  <Identity Name="8922f0b7-e1f2-4893-8c86-d8b7d92565b0"
-            Publisher="CN=Carlos"
-            Version="1.0.0.0" />
-
+  <Identity Name="15385pikax.RevistaProgramarReader" Publisher="CN=6F48A3D8-E61B-4FC3-9284-DBA2D669C0F5" Version="1.1.0.2" />
   <Properties>
-    <DisplayName>Revista Programar Reader Win8</DisplayName>
-    <PublisherDisplayName>Carlos</PublisherDisplayName>
+    <DisplayName>Revista Programar Reader</DisplayName>
+    <PublisherDisplayName>pikax</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
-
   <Prerequisites>
-    <OSMinVersion>6.3.0</OSMinVersion>
-    <OSMaxVersionTested>6.3.0</OSMaxVersionTested>
+    <OSMinVersion>6.2.1</OSMinVersion>
+    <OSMaxVersionTested>6.2.1</OSMaxVersionTested>
   </Prerequisites>
-
   <Resources>
-    <Resource Language="x-generate"/>
+    <Resource Language="x-generate" />
   </Resources>
-
   <Applications>
-    <Application Id="App"
-        Executable="$targetnametoken$.exe"
-        EntryPoint="Revista_Programar_Reader_Win8.App">
-        <m2:VisualElements
-            DisplayName="Revista Programar Reader Win8"
-            Square150x150Logo="Assets\Logo.png"
-            Square30x30Logo="Assets\SmallLogo.png"
-            Description="Revista Programar Reader Win8"
-            ForegroundText="light"
-            BackgroundColor="#464646">
-            <m2:SplashScreen Image="Assets\SplashScreen.png" />
-        </m2:VisualElements>
+    <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="RevProgramarWin8.App">
+      <VisualElements DisplayName="Revista Programar Reader" Logo="Assets\Logo.png" SmallLogo="Assets\SmallLogo.png" Description="Aplicação para fazer download de todas as edições da Revista PROGRAMAR. Aplicação permite visualizar as revistas em modo off-line, caso já tenha sido feito o download." ForegroundText="light" BackgroundColor="#222222" ToastCapable="false">
+        <!--LockScreen Notification="" BadgeLogo="Assets\tilelogo.png" />-->
+        <DefaultTile ShowName="wideLogoOnly" ShortName="GinManga" WideLogo="Assets\Wide310x150Logo.png" />
+        <SplashScreen Image="Assets\SplashScreen.png" />
+      </VisualElements>
     </Application>
   </Applications>
   <Capabilities>
