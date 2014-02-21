@@ -47,7 +47,7 @@ ipch/
 #Visual Studio Store
 *.pfx
 *.StoreAssociation.xml	
-
+	
 # Visual Studio profiler
 *.psess
 *.vsp
