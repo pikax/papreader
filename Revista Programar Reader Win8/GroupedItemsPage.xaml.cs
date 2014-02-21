@@ -1,19 +1,19 @@
-﻿using papReader.Common;
-using papReader.Helper;
+﻿using RevProgramarWin8.Common;
+using RevProgramarWin8.Helper;
 using PaPReaderLib;
 using System;
 using System.Threading.Tasks;
 using Windows.Networking.BackgroundTransfer;
 using Windows.Storage;
-using Windows.UI.ApplicationSettings;
 using Windows.UI.Popups;
 using Windows.UI.Xaml;
 using Windows.UI.Xaml.Controls;
 using Windows.UI.Xaml.Navigation;
+using Windows.UI.ApplicationSettings;
 
 // The Grouped Items Page item template is documented at http://go.microsoft.com/fwlink/?LinkId=234231
 
-namespace papReader
+namespace RevProgramarWin8
 {
 	/// <summary>
 	/// A page that displays a grouped collection of items.
@@ -30,10 +30,6 @@ namespace papReader
 			this.navigationHelper.LoadState += navigationHelper_LoadState;
 			this.itemGridView.ItemTemplateSelector = new RevistaDataTemplateSelector();
 			CurrentPage = this;
-
-
-
-			//var str = RevistaController.Instance.SearchOnPaP("as");
 		}
 
 		/// <summary>
@@ -58,39 +54,6 @@ namespace papReader
 			//// Navigate to the appropriate destination page, configuring the new page
 			//// by passing required information as a navigation parameter
 			//this.Frame.Navigate(typeof(GroupDetailPage), ((SampleDataGroup)group).UniqueId);
-		}
-
-		/// <summary>
-		/// Invoked when this page is about to be displayed in a Frame.
-		/// </summary>
-		/// <param name="e">Event data that describes how this page was reached.  The Parameter
-		/// property is typically used to configure the page.</param>
-		protected override void OnNavigatedTo(NavigationEventArgs e)
-		{
-			SettingsPane.GetForCurrentView().CommandsRequested += onCommandsRequested;
-			base.OnNavigatedTo(e);
-			navigationHelper.OnNavigatedTo(e);
-		}
-
-		protected override void OnNavigatedFrom(NavigationEventArgs e)
-		{
-			base.OnNavigatedFrom(e);
-			navigationHelper.OnNavigatedFrom(e);
-			SettingsPane.GetForCurrentView().CommandsRequested -= onCommandsRequested;
-		}
-
-		/// <summary>
-		/// Handler for the CommandsRequested event. Add custom SettingsCommands here.
-		/// </summary>
-		/// <param name="e">Event data that includes a vector of commands (ApplicationCommands)</param>
-		void onCommandsRequested(SettingsPane settingsPane, SettingsPaneCommandsRequestedEventArgs e)
-		{
-			SettingsCommand generalCommand = new SettingsCommand("PoliticalPrivacy", "Política de Privacidade ",
-				async (handler) =>
-				{
-					await Windows.System.Launcher.LaunchUriAsync(new Uri("http://www.portugal-a-programar.pt/RevistaProgramarReaderEula.html"));
-				});
-			e.Request.ApplicationCommands.Add(generalCommand);
 		}
 
 		/// <summary>
@@ -186,6 +149,39 @@ namespace papReader
 		{
 			await MessageBox(x);
 			BarProgress.Visibility = Windows.UI.Xaml.Visibility.Collapsed;
+		}
+
+		/// <summary>
+		/// Invoked when this page is about to be displayed in a Frame.
+		/// </summary>
+		/// <param name="e">Event data that describes how this page was reached.  The Parameter
+		/// property is typically used to configure the page.</param>
+		protected override void OnNavigatedTo(NavigationEventArgs e)
+		{
+			SettingsPane.GetForCurrentView().CommandsRequested += onCommandsRequested;
+			base.OnNavigatedTo(e);
+			navigationHelper.OnNavigatedTo(e);
+		}
+
+		protected override void OnNavigatedFrom(NavigationEventArgs e)
+		{
+			base.OnNavigatedFrom(e);
+			navigationHelper.OnNavigatedFrom(e);
+			SettingsPane.GetForCurrentView().CommandsRequested -= onCommandsRequested;
+		}
+
+		/// <summary>
+		/// Handler for the CommandsRequested event. Add custom SettingsCommands here.
+		/// </summary>
+		/// <param name="e">Event data that includes a vector of commands (ApplicationCommands)</param>
+		void onCommandsRequested(SettingsPane settingsPane, SettingsPaneCommandsRequestedEventArgs e)
+		{
+			SettingsCommand generalCommand = new SettingsCommand("PoliticalPrivacy", "Política de Privacidade ",
+				async (handler) =>
+				{
+					await Windows.System.Launcher.LaunchUriAsync(new Uri("http://www.portugal-a-programar.pt/RevistaProgramarReaderEula.html"));
+				});
+			e.Request.ApplicationCommands.Add(generalCommand);
 		}
 
 	}

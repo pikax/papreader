@@ -1,9 +1,9 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
 <Package xmlns="http://schemas.microsoft.com/appx/2010/manifest" xmlns:m2="http://schemas.microsoft.com/appx/2013/manifest">
-  <Identity Name="33d6774c-0d05-4805-b173-5cc316cb0481" Publisher="CN=Carlos" Version="1.0.0.0" />
+  <Identity Name="15385pikax.RevistaProgramarReader" Publisher="CN=6F48A3D8-E61B-4FC3-9284-DBA2D669C0F5" Version="1.1.0.9" />
   <Properties>
-    <DisplayName>papReader</DisplayName>
-    <PublisherDisplayName>Carlos</PublisherDisplayName>
+    <DisplayName>Revista Programar Reader</DisplayName>
+    <PublisherDisplayName>pikax</PublisherDisplayName>
     <Logo>Assets\StoreLogo.png</Logo>
   </Properties>
   <Prerequisites>
@@ -15,7 +15,7 @@
   </Resources>
   <Applications>
     <Application Id="App" Executable="$targetnametoken$.exe" EntryPoint="papReader.App">
-      <m2:VisualElements DisplayName="papReader" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="papReader" ForegroundText="dark" BackgroundColor="#222222">
+      <m2:VisualElements DisplayName="Revista Programar Reader" Square150x150Logo="Assets\Logo.png" Square30x30Logo="Assets\SmallLogo.png" Description="Aplicação para fazer download de todas as edições da Revista PROGRAMAR. Aplicação permite visualizar as revistas em modo off-line, caso já tenha sido feito o download." ForegroundText="light" BackgroundColor="#222222">
         <m2:DefaultTile Wide310x150Logo="Assets\Wide310x150Logo.png">
           <m2:ShowNameOnTiles>
             <m2:ShowOn Tile="wide310x150Logo" />
